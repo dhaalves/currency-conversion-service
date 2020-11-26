@@ -47,7 +47,6 @@ public class Transaction extends PanacheEntityBase implements Serializable {
   @Column(name = "exchange_rate")
   private BigDecimal exchangeRate;
 
-  @NotNull
   @CreationTimestamp
   private LocalDateTime dateTime;
 
