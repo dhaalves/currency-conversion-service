@@ -1,7 +1,7 @@
-package com.dhaalves.mapper;
+package com.dhaalves.model.mapper;
 
-import com.dhaalves.dto.TransactionDto;
-import com.dhaalves.model.Transaction;
+import com.dhaalves.model.dto.TransactionDto;
+import com.dhaalves.model.entity.Transaction;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

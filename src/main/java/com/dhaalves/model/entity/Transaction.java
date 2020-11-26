@@ -1,5 +1,6 @@
-package com.dhaalves.model;
+package com.dhaalves.model.entity;
 
+import com.dhaalves.model.Currency;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import java.io.Serializable;
 import java.math.BigDecimal;

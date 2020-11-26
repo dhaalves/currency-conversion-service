@@ -1,8 +1,9 @@
 package com.dhaalves.resources;
 
-import com.dhaalves.dto.TransactionDto;
-import com.dhaalves.mapper.TransactionMapper;
-import com.dhaalves.model.Transaction;
+import com.dhaalves.model.Currency;
+import com.dhaalves.model.dto.TransactionDto;
+import com.dhaalves.model.entity.Transaction;
+import com.dhaalves.model.mapper.TransactionMapper;
 import io.vertx.core.json.JsonObject;
 import java.math.BigDecimal;
 import java.util.List;
@@ -41,7 +42,7 @@ public class TransactionResouce {
   }
 
   /**
-   * Endpoint responsable to return all the transactions from a given user
+   * Endpoint responsible to return all the transactions from a given user
    *
    * @param userId
    * @return
@@ -54,7 +55,7 @@ public class TransactionResouce {
   }
 
   /**
-   * Endpoint responsable to receive the request from the user for a currency conversion, it call
+   * Endpoint responsible to receive the request from the user for a currency conversion, it call
    * external API for exchange rates and persists the transaction.
    *
    * @param transactionDto
@@ -64,25 +65,29 @@ public class TransactionResouce {
   @Transactional
   public Response add(@Valid TransactionDto transactionDto) {
     try {
+      //map transactionDto attributes to transaction
+      Transaction transaction =
+          TransactionMapper.INSTANCE.transactionDtoToTransaction(transactionDto);
+
+      Currency sourceCurrency = transaction.getSourceCurrency();
+      Currency targetCurrency = transaction.getTargetCurrency();
+
       // call external api
       Response exchangeRatesApiResponse =
           client
               .target(EXCHANGE_RATE_API_URL)
-              .resolveTemplate("base", transactionDto.getSourceCurrency().name())
+              .resolveTemplate("base", sourceCurrency.name())
               .request()
               .get();
 
       if (exchangeRatesApiResponse.getStatus() == Status.OK.getStatusCode()) {
 
         // read json from api response
-        Map<String, Object> entries =
+        Map<String, Object> ratesMap =
             exchangeRatesApiResponse.readEntity(JsonObject.class).getJsonObject("rates").getMap();
 
-        Transaction transaction =
-            TransactionMapper.INSTANCE.transactionDtoToTransaction(transactionDto);
-
         transaction.setExchangeRate(
-            BigDecimal.valueOf((Double) entries.get(transaction.getTargetCurrency().name())));
+            BigDecimal.valueOf((Double) ratesMap.get(targetCurrency.name())));
 
         Transaction.persist(transaction);
 
