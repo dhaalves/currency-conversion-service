@@ -1,10 +1,10 @@
 ## Intro
 Since this is a simple project, I choose a simple and slim architecture. This means I have only two visible layers on my project structure, the resource and the model layer.
 
-The model layer uses Hibernate with Panache which brings nice support for using the Active Record pattern. For exposing the API I used JAX-RS espec.
+The model layer uses Hibernate with Panache which brings nice support for using the Active Record pattern. For exposing the API I used JAX-RS spec.
 
-You can check the API doc generated using OPEN API espec on http://DOMAIN/swagger-ui
-or http://localhost:8080/swagger-ui/#/ if you run localy;
+You can check and try the API (doc generated using OPEN API specification) on https://app.swaggerhub.com/apis/dhaalves/generated-api/1.0
+or http://localhost:8080/swagger-ui/#/, if you run locally;
 
 
 
