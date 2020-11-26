@@ -14,6 +14,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 
 @Data
@@ -35,7 +36,8 @@ public class Transaction extends PanacheEntityBase implements Serializable {
   @Column(name = "source_currency")
   private Currency sourceCurrency;
 
-  @NotNull private BigDecimal value;
+  @NotNull
+  private BigDecimal value;
 
   @NotNull
   @Column(name = "target_currency")
@@ -45,8 +47,16 @@ public class Transaction extends PanacheEntityBase implements Serializable {
   @Column(name = "exchange_rate")
   private BigDecimal exchangeRate;
 
-  @NotNull private LocalDateTime dateTime;
+  @NotNull
+  @CreationTimestamp
+  private LocalDateTime dateTime;
 
+  /**
+   * This will be used on JSON serialization, and will be returned when you query for
+   * transactions
+   *
+   * @return
+   */
   public BigDecimal getConvertedValue() {
     return value.multiply(exchangeRate);
   }

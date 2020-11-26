@@ -7,6 +7,7 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface TransactionMapper {
+
   TransactionMapper INSTANCE = Mappers.getMapper(TransactionMapper.class);
 
   TransactionDto transactionToTransactionDto(Transaction transaction);

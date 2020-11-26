@@ -5,13 +5,14 @@ import com.dhaalves.mapper.TransactionMapper;
 import com.dhaalves.model.Transaction;
 import io.vertx.core.json.JsonObject;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -28,6 +29,7 @@ import javax.ws.rs.core.Response.Status;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class TransactionResouce {
+
   public static final String EXCHANGE_RATE_API_URL =
       "https://api.exchangeratesapi.io/latest?base={base}";
 
@@ -46,7 +48,7 @@ public class TransactionResouce {
    */
   @GET
   @Path("/user/{userId}")
-  public List<Transaction> getByUserId(@PathParam("userId") String userId) {
+  public List<Transaction> getByUserId(@NotEmpty @PathParam("userId") String userId) {
     // using active record Pattern
     return Transaction.findByUserId(userId);
   }
@@ -60,7 +62,7 @@ public class TransactionResouce {
    */
   @POST
   @Transactional
-  public Response add(TransactionDto transactionDto) {
+  public Response add(@Valid TransactionDto transactionDto) {
     try {
       // call external api
       Response exchangeRatesApiResponse =
@@ -78,9 +80,9 @@ public class TransactionResouce {
 
         Transaction transaction =
             TransactionMapper.INSTANCE.transactionDtoToTransaction(transactionDto);
+
         transaction.setExchangeRate(
             BigDecimal.valueOf((Double) entries.get(transaction.getTargetCurrency().name())));
-        transaction.setDateTime(LocalDateTime.now());
 
         Transaction.persist(transaction);
 
