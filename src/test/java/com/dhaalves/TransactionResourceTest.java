@@ -2,7 +2,7 @@ package com.dhaalves;
 
 import static io.restassured.RestAssured.given;
 
-import com.dhaalves.model.Currency;
+import com.dhaalves.model.CurrencySymbol;
 import com.dhaalves.model.dto.TransactionDto;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
@@ -21,8 +21,8 @@ public class TransactionResourceTest {
   public void add() {
     TransactionDto transactionDto = TransactionDto.builder()
         .userId("dhaalves")
-        .sourceCurrency(Currency.USD)
-        .targetCurrency(Currency.BRL)
+        .sourceCurrency(CurrencySymbol.USD)
+        .targetCurrency(CurrencySymbol.BRL)
         .value(BigDecimal.valueOf(345.67))
         .build();
     given().contentType(ContentType.JSON).body(transactionDto).when().post("/transaction").then()

@@ -1,16 +1,12 @@
 package com.dhaalves.resources;
 
-import com.dhaalves.model.Currency;
 import com.dhaalves.model.dto.TransactionDto;
 import com.dhaalves.model.entity.Transaction;
 import com.dhaalves.model.mapper.TransactionMapper;
-import io.vertx.core.json.JsonObject;
+import com.dhaalves.service.ExchangeRatesService;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -20,26 +16,22 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.logging.Logger;
 
 @Path("transaction")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class TransactionResouce {
 
-  public static final String EXCHANGE_RATE_API_URL =
-      "https://api.exchangeratesapi.io/latest?base={base}";
+  private static final Logger LOGGER = Logger.getLogger(TransactionResouce.class);
 
-  private Client client;
-
-  @PostConstruct
-  public void init() {
-    client = ClientBuilder.newClient();
-  }
+  @Inject
+  @RestClient
+  private ExchangeRatesService ratesService;
 
   /**
    * Endpoint responsible to return all the transactions from a given user
@@ -50,7 +42,7 @@ public class TransactionResouce {
   @GET
   @Path("/user/{userId}")
   public List<Transaction> getByUserId(@NotEmpty @PathParam("userId") String userId) {
-    // using active record Pattern
+    // using Active Record Pattern
     return Transaction.findByUserId(userId);
   }
 
@@ -69,37 +61,22 @@ public class TransactionResouce {
       Transaction transaction =
           TransactionMapper.INSTANCE.transactionDtoToTransaction(transactionDto);
 
-      Currency sourceCurrency = transaction.getSourceCurrency();
-      Currency targetCurrency = transaction.getTargetCurrency();
+      BigDecimal rate = ratesService.getExchangeRates(transaction.getSourceCurrency())
+          .getRate(transaction.getTargetCurrency());
+      LOGGER.info(String.format(
+          "ExchangeRatesService#getExchangeRates(%s) returned successfully, the rate for %s is %s",
+          transaction.getSourceCurrency(), transaction.getTargetCurrency(), rate));
 
-      // call external api
-      Response exchangeRatesApiResponse =
-          client
-              .target(EXCHANGE_RATE_API_URL)
-              .resolveTemplate("base", sourceCurrency.name())
-              .request()
-              .get();
+      transaction.setExchangeRate(rate);
 
-      if (exchangeRatesApiResponse.getStatus() == Status.OK.getStatusCode()) {
+      Transaction.persist(transaction);
+      LOGGER.info(String.format("Transaction %s persisted successfully", transaction.getId()));
 
-        // read json from api response
-        Map<String, Object> ratesMap =
-            exchangeRatesApiResponse.readEntity(JsonObject.class).getJsonObject("rates").getMap();
-
-        transaction.setExchangeRate(
-            BigDecimal.valueOf((Double) ratesMap.get(targetCurrency.name())));
-
-        Transaction.persist(transaction);
-
-        return Response.ok().entity(transaction).build();
-      }
-
-      // if external api call is not sucessful HTTP != 200, foward their response;
-      return exchangeRatesApiResponse;
+      return Response.status(Status.CREATED).entity(transaction).build();
 
       // if any other thing goes wrong, return HTTP 400 with the error message on response body
     } catch (Exception e) {
-      Logger.getLogger(TransactionResouce.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+      LOGGER.error(e.getMessage(), e);
       return Response.status(Status.BAD_REQUEST).entity(e.getLocalizedMessage()).build();
     }
   }

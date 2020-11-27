@@ -1,6 +1,6 @@
 package com.dhaalves.model.dto;
 
-import com.dhaalves.model.Currency;
+import com.dhaalves.model.CurrencySymbol;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import javax.validation.constraints.NotEmpty;
@@ -19,9 +19,9 @@ public class TransactionDto implements Serializable {
   @NotEmpty
   private String userId;
   @NotNull
-  private Currency sourceCurrency;
+  private CurrencySymbol sourceCurrency;
   @NotNull
   private BigDecimal value;
   @NotNull
-  private Currency targetCurrency;
+  private CurrencySymbol targetCurrency;
 }

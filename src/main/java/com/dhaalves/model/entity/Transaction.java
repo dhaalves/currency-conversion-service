@@ -1,6 +1,6 @@
 package com.dhaalves.model.entity;
 
-import com.dhaalves.model.Currency;
+import com.dhaalves.model.CurrencySymbol;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -21,7 +21,7 @@ import org.hibernate.annotations.GenericGenerator;
 @Data
 @Entity
 @Table(name = "transactions")
-public class Transaction extends PanacheEntityBase implements Serializable {
+public class Transaction  extends PanacheEntityBase implements Serializable {
 
   @Id
   @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
@@ -35,14 +35,14 @@ public class Transaction extends PanacheEntityBase implements Serializable {
 
   @NotNull
   @Column(name = "source_currency")
-  private Currency sourceCurrency;
+  private CurrencySymbol sourceCurrency;
 
   @NotNull
   private BigDecimal value;
 
   @NotNull
   @Column(name = "target_currency")
-  private Currency targetCurrency;
+  private CurrencySymbol targetCurrency;
 
   @NotNull
   @Column(name = "exchange_rate")

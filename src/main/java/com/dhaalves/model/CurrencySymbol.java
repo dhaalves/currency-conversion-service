@@ -1,6 +1,6 @@
 package com.dhaalves.model;
 
-public enum Currency {
+public enum CurrencySymbol {
   CAD,
   HKD,
   ISK,
