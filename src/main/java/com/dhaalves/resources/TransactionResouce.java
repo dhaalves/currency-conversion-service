@@ -47,7 +47,7 @@ public class TransactionResouce {
   }
 
   /**
-   * Endpoint responsible to receive the request from the user for a currency conversion, it call
+   * Endpoint responsible to receive the request from the client for a currency conversion, it calls an
    * external API for exchange rates and persists the transaction.
    *
    * @param transactionDto
