@@ -3,7 +3,7 @@ Since this is a simple project, I choose a simple and slim architecture. This me
 
 The model layer uses Hibernate with Panache which brings nice support for using the Active Record pattern. For exposing the API I used JAX-RS spec.
 
-You can check and try the API (doc generated using OPEN API specification) on https://app.swaggerhub.com/apis/dhaalves/generated-api/1.0
+You can check and try the API (doc generated using OPEN API specification) on https://app.swaggerhub.com/apis-docs/dhaalves/generated-api/1.0
 or http://localhost:8080/swagger-ui/#/, if you run locally;
 
 
